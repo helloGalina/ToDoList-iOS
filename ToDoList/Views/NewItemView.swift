@@ -1,0 +1,46 @@
+import SwiftUI
+
+struct NewItemView: View {
+
+    @StateObject var viewModel = NewItemViewViewModel()
+    @Binding var newItemPresented: Bool
+
+    var body: some View {
+        VStack {
+            Text("Новая задача")
+                .font(.system(size: 32))
+                .bold()
+                .padding(.top, 100)
+
+            Form {
+                TextField("Заголовок", text: $viewModel.title)
+                    .textFieldStyle(DefaultTextFieldStyle())
+
+                DatePicker(
+                    "Due Date",
+                    selection: $viewModel.dueDate
+                )
+                .datePickerStyle(.graphical)
+                
+                TLButton(title: "Сохранить", background: .pink) {
+                    if viewModel.canSave {
+                        viewModel.save()
+                        newItemPresented = false
+                    } else {
+                        viewModel.showAlert = true
+                    }
+                }
+                .padding()
+            }
+            .alert(isPresented: $viewModel.showAlert) {
+                Alert(title: Text("Ошибка"), message: Text("Недопустимая дата"))
+            }
+        }
+    }
+}
+
+#Preview {
+    NewItemView(newItemPresented: Binding(get: {
+        return true
+    }, set: {_ in }))
+}
